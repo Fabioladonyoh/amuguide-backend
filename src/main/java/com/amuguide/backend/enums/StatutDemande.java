@@ -1,4 +1,4 @@
-package com.amuguide_backend.EnumType;
+package com.amuguide.backend.enums;
 
 public enum StatutDemande {
 

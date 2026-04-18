@@ -1,4 +1,4 @@
-package com.amuguide_backend;
+package com.amuguide.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

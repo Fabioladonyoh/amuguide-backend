@@ -1,7 +1,7 @@
-package com.amuguide_backend.Entity;
+package com.amuguide.backend.entity;
 
-import com.amuguide_backend.EnumType.StatutDemande;
-import com.amuguide_backend.EnumType.TypeDemande;
+import com.amuguide.backend.enums.StatutDemande;
+import com.amuguide.backend.enums.TypeDemande;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "demandes")
+@Table(name = "demande")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,21 +33,22 @@ public class Demande {
     @Column(nullable = false)
     private StatutDemande statut;
 
-    @Column(length = 1000, nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT")
     private String resultat;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assure_id", nullable = false)
     private AssureAMU assure;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "prestation_id")
     private Prestation prestation;
 
     @OneToMany(mappedBy = "demande", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Historique> historiques = new ArrayList<>();
 
     @PrePersist
@@ -59,5 +60,4 @@ public class Demande {
             statut = StatutDemande.EN_ATTENTE;
         }
     }
-
 }

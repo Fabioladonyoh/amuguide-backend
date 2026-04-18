@@ -1,5 +1,4 @@
-package com.amuguide_backend.Entity;
-
+package com.amuguide.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,7 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "historiques")
+@Table(name = "historique")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,10 +24,10 @@ public class Historique {
     @Column(nullable = false)
     private String action;
 
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT")
     private String details;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "demande_id", nullable = false)
     private Demande demande;
 
@@ -38,5 +37,4 @@ public class Historique {
             dateAction = LocalDateTime.now();
         }
     }
-
 }

@@ -1,10 +1,10 @@
-package com.amuguide_backend.Entity;
+package com.amuguide.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "administrateurs")
+@Table(name = "administrateur")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,4 +31,13 @@ public class Administrateur {
     @Column(nullable = false)
     private String motDePasse;
 
+    @Column(nullable = false)
+    private Boolean actif;
+
+    @PrePersist
+    public void prePersist() {
+        if (actif == null) {
+            actif = true;
+        }
+    }
 }
