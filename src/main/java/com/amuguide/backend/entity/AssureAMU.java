@@ -1,15 +1,18 @@
 package com.amuguide.backend.entity;
 
 import com.amuguide.backend.enums.StatutAssure;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "assure_amu")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -46,6 +49,7 @@ public class AssureAMU {
     @Column(nullable = false)
     private StatutAssure statut;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "assure", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Demande> demandes = new ArrayList<>();

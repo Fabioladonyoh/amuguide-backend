@@ -1,6 +1,8 @@
 package com.amuguide.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.amuguide.backend.enums.CategorieActe;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,6 +11,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "prestation")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -47,5 +50,6 @@ public class Prestation {
 
     @ManyToMany(mappedBy = "prestations")
     @Builder.Default
+    @JsonIgnore
     private List<StructureSante> structures = new ArrayList<>();
 }
