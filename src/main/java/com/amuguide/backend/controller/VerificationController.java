@@ -1,5 +1,6 @@
 package com.amuguide.backend.controller;
 
+import com.amuguide.backend.dto.VerificationResponseDTO;
 import com.amuguide.backend.entity.Prestation;
 import com.amuguide.backend.service.VerificationService;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/verifications")
@@ -18,7 +18,7 @@ public class VerificationController {
     private final VerificationService verificationService;
 
     @GetMapping("/code/{codeActe}")
-    public ResponseEntity<Map<String, Object>> verifierParCodeActe(@PathVariable String codeActe) {
+    public ResponseEntity<VerificationResponseDTO> verifierParCodeActe(@PathVariable String codeActe) {
         return ResponseEntity.ok(verificationService.verifierParCodeActe(codeActe));
     }
 

@@ -1,10 +1,9 @@
 package com.amuguide.backend.service;
 
+import com.amuguide.backend.dto.ChatbotResponseDTO;
+import com.amuguide.backend.dto.VerificationResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -12,27 +11,47 @@ public class ChatbotService {
 
     private final VerificationService verificationService;
 
-    public Map<String, Object> repondre(String message) {
-
-        Map<String, Object> response = new HashMap<>();
-
-        message = message.toLowerCase();
-
-        if (message.contains("consultation")) {
-            return verificationService.verifierParCodeActe("CONS001");
+    public ChatbotResponseDTO repondre(String message) {
+        if (message == null || message.isBlank()) {
+            return ChatbotResponseDTO.builder()
+                    .message("Votre message est vide.")
+                    .suggestions("Essayez : consultation, radiologie, dent")
+                    .build();
         }
 
-        if (message.contains("radiologie")) {
-            return verificationService.verifierParCodeActe("RAD001");
+        String lower = message.toLowerCase();
+
+        if (lower.contains("consultation")) {
+            VerificationResponseDTO v = verificationService.verifierParCodeActe("CONS001");
+            return mapToChatbot(v);
         }
 
-        if (message.contains("dent")) {
-            return verificationService.verifierParCodeActe("DENT001");
+        if (lower.contains("radiologie")) {
+            VerificationResponseDTO v = verificationService.verifierParCodeActe("RAD001");
+            return mapToChatbot(v);
         }
 
-        response.put("message", "Je n'ai pas compris votre demande.");
-        response.put("suggestions", "Essayez : consultation, radiologie, dent");
+        if (lower.contains("dent")) {
+            VerificationResponseDTO v = verificationService.verifierParCodeActe("DENT001");
+            return mapToChatbot(v);
+        }
 
-        return response;
+        return ChatbotResponseDTO.builder()
+                .message("Je n'ai pas compris votre demande.")
+                .suggestions("Essayez : consultation, radiologie, dent")
+                .build();
+    }
+
+    private ChatbotResponseDTO mapToChatbot(VerificationResponseDTO v) {
+        return ChatbotResponseDTO.builder()
+                .statut(v.getStatut())
+                .message(v.getMessage())
+                .codeActe(v.getCodeActe())
+                .nomActe(v.getNomActe())
+                .prisEnCharge(v.getPrisEnCharge())
+                .tauxCouverture(v.getTauxCouverture())
+                .conditionsPriseEnCharge(v.getConditionsPriseEnCharge())
+                .documentsRequis(v.getDocumentsRequis())
+                .build();
     }
 }

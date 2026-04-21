@@ -1,5 +1,7 @@
 package com.amuguide.backend.controller;
 
+import com.amuguide.backend.dto.DemandeRequestDTO;
+import com.amuguide.backend.dto.DemandeResponseDTO;
 import com.amuguide.backend.entity.Demande;
 import com.amuguide.backend.entity.Historique;
 import com.amuguide.backend.enums.StatutDemande;
@@ -40,21 +42,41 @@ public class DemandeController {
     }
 
     @PostMapping
-    public ResponseEntity<Demande> createDemande(
-            @RequestParam Long assureId,
-            @RequestParam(required = false) Long prestationId,
-            @RequestBody Demande demande) {
-        return ResponseEntity.ok(demandeService.createDemande(assureId, prestationId, demande));
+    public ResponseEntity<DemandeResponseDTO> createDemande(@RequestBody DemandeRequestDTO request) {
+        Demande demande = Demande.builder()
+                .typeDemande(request.getTypeDemande())
+                .description(request.getDescription())
+                .build();
+
+        Demande saved = demandeService.createDemande(
+                request.getAssureId(),
+                request.getPrestationId(),
+                demande
+        );
+
+        return ResponseEntity.ok(mapToResponse(saved));
     }
 
     @PutMapping("/{id}/resultat")
-    public ResponseEntity<Demande> updateResultatDemande(
+    public ResponseEntity<DemandeResponseDTO> updateResultatDemande(
             @PathVariable Long id,
             @RequestBody Map<String, String> body) {
 
         String resultat = body.get("resultat");
         StatutDemande statut = StatutDemande.valueOf(body.get("statut"));
 
-        return ResponseEntity.ok(demandeService.updateResultatDemande(id, resultat, statut));
+        Demande updated = demandeService.updateResultatDemande(id, resultat, statut);
+        return ResponseEntity.ok(mapToResponse(updated));
+    }
+
+    private DemandeResponseDTO mapToResponse(Demande demande) {
+        return DemandeResponseDTO.builder()
+                .idDemande(demande.getIdDemande())
+                .typeDemande(demande.getTypeDemande())
+                .dateDemande(demande.getDateDemande())
+                .statut(demande.getStatut())
+                .description(demande.getDescription())
+                .resultat(demande.getResultat())
+                .build();
     }
 }

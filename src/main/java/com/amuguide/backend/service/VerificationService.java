@@ -1,51 +1,46 @@
 package com.amuguide.backend.service;
 
+import com.amuguide.backend.dto.VerificationResponseDTO;
 import com.amuguide.backend.entity.Prestation;
 import com.amuguide.backend.repository.PrestationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-    @Service
-    @RequiredArgsConstructor
-    public class VerificationService {
+@Service
+@RequiredArgsConstructor
+public class VerificationService {
 
-        private final PrestationRepository prestationRepository;
+    private final PrestationRepository prestationRepository;
 
-        public Map<String, Object> verifierParCodeActe(String codeActe) {
-            Prestation prestation = prestationRepository.findByCodeActe(codeActe)
-                    .orElseThrow(() -> new RuntimeException("Aucune prestation trouvée pour le code acte : " + codeActe));
+    public VerificationResponseDTO verifierParCodeActe(String codeActe) {
+        Prestation prestation = prestationRepository.findByCodeActe(codeActe)
+                .orElseThrow(() -> new RuntimeException("Aucune prestation trouvée pour le code acte : " + codeActe));
 
-            return construireResultatVerification(prestation);
-        }
+        return construireResultatVerification(prestation);
+    }
 
-        public List<Prestation> rechercherParMotCle(String motCle) {
-            return prestationRepository.findByNomActeContainingIgnoreCase(motCle);
-        }
+    public List<Prestation> rechercherParMotCle(String motCle) {
+        return prestationRepository.findByNomActeContainingIgnoreCase(motCle);
+    }
 
-        private Map<String, Object> construireResultatVerification(Prestation prestation) {
-            Map<String, Object> resultat = new HashMap<>();
-            resultat.put("codeActe", prestation.getCodeActe());
-            resultat.put("nomActe", prestation.getNomActe());
-            resultat.put("categorie", prestation.getCategorie());
-            resultat.put("prisEnCharge", prestation.getPrisEnCharge());
-            resultat.put("tauxCouverture", prestation.getTauxCouverture());
-            resultat.put("conditionsPriseEnCharge", prestation.getConditionsPriseEnCharge());
-            resultat.put("documentsRequis", prestation.getDocumentsRequis());
+    private VerificationResponseDTO construireResultatVerification(Prestation prestation) {
+        String statut = Boolean.TRUE.equals(prestation.getPrisEnCharge()) ? "COUVERT" : "NON_COUVERT";
+        String message = Boolean.TRUE.equals(prestation.getPrisEnCharge())
+                ? "Cet acte est pris en charge par l'AMU."
+                : "Cet acte n'est pas pris en charge par l'AMU.";
 
-            if (Boolean.TRUE.equals(prestation.getPrisEnCharge())) {
-                resultat.put("statut", "COUVERT");
-                resultat.put("message", "Cet acte est pris en charge par l'AMU.");
-            } else {
-                resultat.put("statut", "NON_COUVERT");
-                resultat.put("message", "Cet acte n'est pas pris en charge par l'AMU.");
-            }
-
-            return resultat;
-        }
-
-
+        return VerificationResponseDTO.builder()
+                .statut(statut)
+                .message(message)
+                .codeActe(prestation.getCodeActe())
+                .nomActe(prestation.getNomActe())
+                .categorie(prestation.getCategorie().name())
+                .prisEnCharge(prestation.getPrisEnCharge())
+                .tauxCouverture(prestation.getTauxCouverture())
+                .conditionsPriseEnCharge(prestation.getConditionsPriseEnCharge())
+                .documentsRequis(prestation.getDocumentsRequis())
+                .build();
+    }
 }
