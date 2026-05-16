@@ -83,5 +83,11 @@ import java.util.List;
             return historiqueRepository.findByDemande_IdDemande(demandeId);
         }
 
+        public boolean appartientAAssure(Long demandeId, Long assureId) {
+            return demandeRepository.findByIdDemandeAndAssure_IdAssure(demandeId, assureId).isPresent();
+        }
 
+        public void supprimerDemande(Long id) {
+            demandeRepository.delete(getDemandeById(id));
+        }
 }
