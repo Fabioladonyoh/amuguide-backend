@@ -50,6 +50,10 @@ public class AssureAMU {
     private StatutAssure statut;
 
     @JsonIgnore
+    @Column(nullable = true)
+    private String motDePasse;
+
+    @JsonIgnore
     @OneToMany(mappedBy = "assure", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Demande> demandes = new ArrayList<>();
