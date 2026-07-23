@@ -54,6 +54,8 @@ public class SecurityConfig {
 
                 // ── Chatbot public ──────────────────────────────────────────
                 .requestMatchers(HttpMethod.POST, "/api/chatbot/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/chat").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/chat/status").permitAll()
 
                 // ── Formulaire de contact public ────────────────────────────
                 .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()

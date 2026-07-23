@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
     type = SecuritySchemeType.HTTP,
     scheme = "bearer",
     bearerFormat = "JWT",
-    description = "Token obtenu via POST /api/auth/assure/login ou /api/auth/admin/login"
+    description = "Token obtenu via POST /api/auth/login"
 )
 public class OpenApiConfig {
 }
