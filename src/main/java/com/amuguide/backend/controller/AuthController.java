@@ -1,6 +1,7 @@
 package com.amuguide.backend.controller;
 
 import com.amuguide.backend.dto.AuthResponseDTO;
+import com.amuguide.backend.dto.AdminLoginRequestDTO;
 import com.amuguide.backend.dto.AssureLoginRequestDTO;
 import com.amuguide.backend.dto.AssureRegisterRequestDTO;
 import com.amuguide.backend.dto.LoginRequestDTO;
@@ -32,6 +33,17 @@ public class AuthController {
     )
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/admin/login")
+    @Operation(
+            summary = "Connexion administrateur",
+            description = "Authentification administrateur avec login et mot de passe"
+    )
+    public ResponseEntity<AuthResponseDTO> loginAdmin(
+            @Valid @RequestBody AdminLoginRequestDTO request
+    ) {
+        return ResponseEntity.ok(authService.loginAdmin(request));
     }
 
     @PostMapping("/assure/login")

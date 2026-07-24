@@ -20,8 +20,8 @@ public class ContactService {
     public ContactResponseDTO envoyerMessage(ContactRequestDTO request) {
         ContactMessage message = ContactMessage.builder()
                 .nom(request.getNom())
-                .prenom(request.getPrenom())
-                .telephone(request.getTelephone())
+                .prenom(blankToEmpty(request.getPrenom()))
+                .telephone(blankToEmpty(request.getTelephone()))
                 .email(request.getEmail())
                 .sujet(request.getSujet())
                 .message(request.getMessage())
@@ -55,6 +55,10 @@ public class ContactService {
     private ContactMessage findById(Long id) {
         return contactMessageRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Message de contact non trouvé : " + id));
+    }
+
+    private String blankToEmpty(String value) {
+        return value == null ? "" : value.trim();
     }
 
     private ContactResponseDTO toDTO(ContactMessage m) {

@@ -4,6 +4,7 @@ import com.amuguide.backend.enums.StatutAssure;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -20,4 +21,6 @@ public class AssureProfileDTO {
     private String email;
     private String adresse;
     private StatutAssure statut;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

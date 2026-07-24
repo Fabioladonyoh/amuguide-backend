@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -38,9 +39,13 @@ public class ChatbotService {
             return ChatbotResponseDTO.builder()
                     .intent("FALLBACK")
                     .message("Votre message est vide.")
+                    .sessionId(request == null ? null : request.getSessionId())
                     .suggestions("Suggestions : Consultation, Radiologie, Hopital proche")
                     .suggestionList(List.of("Consultation", "Radiologie", "Hopital proche"))
                     .build();
+        }
+        if (request.getSessionId() == null || request.getSessionId().isBlank()) {
+            request.setSessionId("session-" + UUID.randomUUID());
         }
 
         IntentDetectionResult detection = intentDetector.detect(message).toBuilder()
@@ -49,12 +54,12 @@ public class ChatbotService {
                 .build();
         ChatbotResponseDTO response = faqChatbotService.answer(detection)
                 .orElseGet(() -> responseGenerator.generate(detection));
-        enrichResponse(response, detection);
+        enrichResponse(response, detection, request.getSessionId());
         saveHistory(request, detection, response);
         return response;
     }
 
-    private void enrichResponse(ChatbotResponseDTO response, IntentDetectionResult detection) {
+    private void enrichResponse(ChatbotResponseDTO response, IntentDetectionResult detection, String sessionId) {
         if (response.getAnswer() == null) {
             response.setAnswer(response.getMessage());
         }
@@ -73,8 +78,14 @@ public class ChatbotService {
         if (response.getTimestamp() == null) {
             response.setTimestamp(LocalDateTime.now());
         }
+        if (response.getSessionId() == null) {
+            response.setSessionId(sessionId);
+        }
         if (response.getSources() == null) {
             response.setSources(List.of());
+        }
+        if (response.getSource() == null) {
+            response.setSource(response.getSources().isEmpty() ? "LOCAL_RULES" : "DATABASE");
         }
         if (response.getFound() == null) {
             boolean knownCategory = !"FALLBACK".equals(response.getCategory())

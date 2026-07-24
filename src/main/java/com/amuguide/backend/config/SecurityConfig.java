@@ -74,6 +74,7 @@ public class SecurityConfig {
 
                 // ── Espace assuré authentifié ───────────────────────────────
                 .requestMatchers("/api/me/**").hasRole("ASSURE")
+                .requestMatchers("/api/assure/**").hasRole("ASSURE")
 
                 // ── Tout le reste requiert une authentification ─────────────
                 .anyRequest().authenticated()

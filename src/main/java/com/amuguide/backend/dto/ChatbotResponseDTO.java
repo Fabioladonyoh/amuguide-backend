@@ -16,6 +16,8 @@ public class ChatbotResponseDTO {
     private String answer;
     private String category;
     private Boolean found;
+    private String source;
+    private String sessionId;
     private Double confidence;
     private List<ChatbotSourceDTO> sources;
     private LocalDateTime timestamp;

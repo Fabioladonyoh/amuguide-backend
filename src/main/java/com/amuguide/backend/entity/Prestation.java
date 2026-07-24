@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,8 +49,27 @@ public class Prestation {
     @Column(columnDefinition = "TEXT")
     private String documentsRequis;
 
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
     @ManyToMany(mappedBy = "prestations")
     @Builder.Default
     @JsonIgnore
     private List<StructureSante> structures = new ArrayList<>();
+
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        createdAt = now;
+        updatedAt = now;
+        if (prisEnCharge == null) {
+            prisEnCharge = true;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

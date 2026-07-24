@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,8 +37,12 @@ public class StructureSante {
     @Column(nullable = false)
     private String ville;
 
+    private String region;
+
     @Column(nullable = false, length = 20)
     private String telephone;
+
+    private String email;
 
     @Column(nullable = false)
     private Double latitude;
@@ -48,10 +53,16 @@ public class StructureSante {
     @Column(nullable = false)
     private Boolean agrementAMU;
 
+    private Boolean actif;
+
     @Column(columnDefinition = "TEXT")
     private String specialites;
 
     private String horaires;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
     @ManyToMany
     @JoinTable(
@@ -62,4 +73,22 @@ public class StructureSante {
     @Builder.Default
     @JsonIgnore
     private List<Prestation> prestations = new ArrayList<>();
+
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        createdAt = now;
+        updatedAt = now;
+        if (agrementAMU == null) {
+            agrementAMU = true;
+        }
+        if (actif == null) {
+            actif = true;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }

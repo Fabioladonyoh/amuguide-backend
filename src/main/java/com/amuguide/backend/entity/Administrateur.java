@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "administrateur")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -36,10 +38,22 @@ public class Administrateur {
     @Column(nullable = false)
     private Boolean actif;
 
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
     @PrePersist
     public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        createdAt = now;
+        updatedAt = now;
         if (actif == null) {
             actif = true;
         }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }

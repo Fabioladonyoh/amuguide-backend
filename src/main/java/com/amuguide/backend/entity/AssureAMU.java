@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -53,6 +54,10 @@ public class AssureAMU {
     @Column(nullable = true)
     private String motDePasse;
 
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
     @JsonIgnore
     @OneToMany(mappedBy = "assure", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -60,8 +65,16 @@ public class AssureAMU {
 
     @PrePersist
     public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        createdAt = now;
+        updatedAt = now;
         if (statut == null) {
             statut = StatutAssure.ACTIF;
         }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }
