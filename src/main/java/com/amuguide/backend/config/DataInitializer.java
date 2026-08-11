@@ -13,6 +13,9 @@ import com.amuguide.backend.repository.PrestationRepository;
 import com.amuguide.backend.repository.StructureSanteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +26,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@ConditionalOnProperty(name = "amuguide.seed.demo.enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
@@ -250,16 +255,16 @@ public class DataInitializer implements CommandLineRunner {
                     if (!isBCrypt(existing.getMotDePasse())) {
                         existing.setMotDePasse(passwordEncoder.encode(existing.getMotDePasse()));
                         administrateurRepository.save(existing);
-                        System.out.printf("  %-14s → mot de passe migré en BCrypt%n", d.login());
+                        System.out.println("  Compte administrateur demo : mot de passe migre en BCrypt");
                     } else {
-                        System.out.printf("  %-14s → déjà en base%n", d.login());
+                        System.out.println("  Compte administrateur demo : deja en base");
                     }
                 },
                 () -> {
                     administrateurRepository.save(Administrateur.builder()
                             .login(d.login()).motDePasse(passwordEncoder.encode(d.motDePasse()))
                             .nom(d.nom()).prenom(d.prenom()).email(d.email()).actif(true).build());
-                    System.out.printf("  %-14s créé (mdp: %s)%n", d.login(), d.motDePasse());
+                    System.out.println("  Compte administrateur demo cree");
                 }
             );
         }
@@ -279,10 +284,9 @@ public class DataInitializer implements CommandLineRunner {
                         .dateNaissance(d.dateNaissance()).telephone(d.telephone())
                         .email(d.email()).adresse(d.adresse()).statut(StatutAssure.ACTIF)
                         .motDePasse(passwordEncoder.encode(mdp)).build());
-                System.out.printf("  %-7s %-22s créé (mdp: %s)%n",
-                        d.numeroAMU(), d.prenom() + " " + d.nom(), mdp);
+                System.out.println("  Compte assure demo cree");
             } else {
-                System.out.printf("  %-7s → déjà en base%n", d.numeroAMU());
+                System.out.println("  Compte assure demo deja en base");
             }
         }
     }
@@ -293,7 +297,7 @@ public class DataInitializer implements CommandLineRunner {
                 String mdp = assure.getDateNaissance().format(DDMMyyyyFmt);
                 assure.setMotDePasse(passwordEncoder.encode(mdp));
                 assureAMURepository.save(assure);
-                System.out.printf("  [Migration] %s → BCrypt initialisé%n", assure.getNumeroAMU());
+                System.out.println("  Compte assure demo : mot de passe migre en BCrypt");
             }
         });
     }

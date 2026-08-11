@@ -1,0 +1,36 @@
+{
+  "source": "C:\\Users\\MISS D\\Downloads\\Résultats de la recherche.pdf",
+  "csv": "data\\structures_sante_amu.csv",
+  "ambiguities": "data\\structures_sante_ambiguities.txt",
+  "structures": 1781,
+  "codes_uniques": 1781,
+  "doublons": 0,
+  "codes_vides": 0,
+  "libelles_vides": 0,
+  "adresses_vides": 329,
+  "regions": {
+    "SAVANES": 156,
+    "KARA": 206,
+    "CENTRALE": 162,
+    "PLATEAUX": 330,
+    "MARITIME": 231,
+    "GRAND LOMÉ": 696
+  },
+  "types": {
+    "HOPITAL DE DISTRICT": 121,
+    "USP type I": 727,
+    "USP type II": 223,
+    "CHR": 30,
+    "CHU": 288,
+    "PHARMACIE": 296,
+    "CENTRE D'APPAREILLAGE": 6,
+    "DEPOT PHARMACIE": 22,
+    "INFIRMERIE": 22,
+    "CENTRE DE LUNETTERIE": 37,
+    "DEPOT PHARMACEUTIQUE": 3,
+    "NIVEAU DE SOINS 4": 2,
+    "POLYCLINIQUE": 4
+  },
+  "ambiguites": 0,
+  "records_pdf": 1781
+}

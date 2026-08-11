@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/contact")
 @RequiredArgsConstructor
-@CrossOrigin("*")
 @Tag(name = "Contact", description = "Formulaire de contact public")
 public class ContactController {
 

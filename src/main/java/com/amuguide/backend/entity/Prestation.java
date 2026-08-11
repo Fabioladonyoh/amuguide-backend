@@ -24,7 +24,7 @@ public class Prestation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPrestation;
 
-    @Column(nullable = false, unique = true, length = 30)
+    @Column(nullable = false, unique = true, length = 60)
     private String codeActe;
 
     @Column(nullable = false)

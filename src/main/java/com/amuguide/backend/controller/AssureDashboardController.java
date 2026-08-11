@@ -21,6 +21,7 @@ import com.amuguide.backend.repository.DemandeRepository;
 import com.amuguide.backend.repository.MedicamentRepository;
 import com.amuguide.backend.repository.PrestationRepository;
 import com.amuguide.backend.repository.StructureSanteRepository;
+import com.amuguide.backend.service.HospitalisationTarifService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -65,6 +66,7 @@ public class AssureDashboardController {
     private final ChatHistoryRepository chatHistoryRepository;
     private final DemandeRepository demandeRepository;
     private final PasswordEncoder passwordEncoder;
+    private final HospitalisationTarifService hospitalisationTarifService;
 
     @GetMapping("/dashboard")
     public AssureDashboardDTO dashboard() {
@@ -174,6 +176,20 @@ public class AssureDashboardController {
         return prestations(page, size, firstText(search, query), categorie, sortBy, sortDirection);
     }
 
+    @GetMapping("/hospitalisations")
+    public PageResponseDTO<HospitalisationTarifDTO> hospitalisations(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String typePrestataire,
+            @RequestParam(required = false) String chambre,
+            @RequestParam(required = false) String population,
+            @RequestParam(required = false) String categorie,
+            @RequestParam(defaultValue = "typePrestataire") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection) {
+        Pageable pageable = pageable(page, size, mapHospitalisationSort(sortBy), sortDirection);
+        return PageResponseDTO.from(hospitalisationTarifService.search(categorie, chambre, population, typePrestataire, pageable));
+    }
+
     @GetMapping("/medicaments")
     public PageResponseDTO<MedicationDTO> medicaments(
             @RequestParam(defaultValue = "0") int page,
@@ -184,7 +200,7 @@ public class AssureDashboardController {
             @RequestParam(defaultValue = "nom") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection) {
         Pageable pageable = pageable(page, size, mapMedicamentSort(sortBy), sortDirection);
-        Page<MedicationDTO> result = medicamentRepository.searchMedicaments(search, prisEnCharge, categorie, true, pageable)
+        Page<MedicationDTO> result = medicamentRepository.searchOfficialMedicaments(search, prisEnCharge, categorie, true, pageable)
                 .map(this::toMedicationDTO);
         return PageResponseDTO.from(result);
     }
@@ -206,6 +222,7 @@ public class AssureDashboardController {
     public MedicationDTO medicament(@PathVariable Long id) {
         Medicament medicament = medicamentRepository.findById(id)
                 .filter(m -> Boolean.TRUE.equals(m.getActif()))
+                .filter(this::isOfficialMedicament)
                 .orElseThrow(() -> new ResourceNotFoundException("Medicament actif introuvable : " + id));
         return toMedicationDTO(medicament);
     }
@@ -219,6 +236,9 @@ public class AssureDashboardController {
             @RequestParam(required = false) TypeStructure type,
             @RequestParam(defaultValue = "nom") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection) {
+        if (type == TypeStructure.PHARMACIE) {
+            throw new BadRequestException("Les pharmacies doivent etre consultees via /api/assure/pharmacies");
+        }
         Pageable pageable = pageable(page, size, mapStructureSort(sortBy), sortDirection);
         Page<StructureSanteDTO> result = structureRepository.searchStructures(search, ville, type, true, true, pageable)
                 .map(s -> toStructureDTO(s, null));
@@ -229,6 +249,7 @@ public class AssureDashboardController {
     public StructureSanteDTO structure(@PathVariable Long id) {
         StructureSante structure = structureRepository.findById(id)
                 .filter(this::isAccessibleStructure)
+                .filter(this::isOfficialStructure)
                 .orElseThrow(() -> new ResourceNotFoundException("Structure de sante agreee introuvable : " + id));
         return toStructureDTO(structure, null);
     }
@@ -257,7 +278,7 @@ public class AssureDashboardController {
             throw new BadRequestException("Le rayon doit etre positif");
         }
 
-        List<StructureSanteDTO> nearby = structureRepository.findByAgrementAMUTrue().stream()
+        List<StructureSanteDTO> nearby = structureRepository.findOfficialHealthStructures().stream()
                 .filter(this::isAccessibleStructure)
                 .filter(s -> s.getLatitude() != null && s.getLongitude() != null)
                 .map(s -> toStructureDTO(s, distanceKm(latitude, longitude, s.getLatitude(), s.getLongitude())))
@@ -400,7 +421,12 @@ public class AssureDashboardController {
 
     private boolean isAccessibleStructure(StructureSante structure) {
         return Boolean.TRUE.equals(structure.getAgrementAMU())
+                && structure.getType() != TypeStructure.PHARMACIE
                 && (structure.getActif() == null || Boolean.TRUE.equals(structure.getActif()));
+    }
+
+    private boolean isOfficialStructure(StructureSante structure) {
+        return structure.getCode() != null && !structure.getCode().isBlank();
     }
 
     private AssureProfileDTO toProfileDTO(AssureAMU a) {
@@ -444,15 +470,27 @@ public class AssureDashboardController {
                 .dosage(m.getDosage())
                 .formePharmaceutique(m.getFormePharmaceutique())
                 .categorie(m.getCategorie())
+                .typeMedicament(m.getTypeMedicament())
+                .groupeTherapeutique(m.getGroupeTherapeutique())
+                .prixPublic(m.getPrixPublic())
+                .baseRemboursement(m.getBaseRemboursement())
+                .partInam(m.getPartInam())
+                .partBeneficiaire(m.getPartBeneficiaire())
                 .prisEnCharge(m.getPrisEnCharge())
                 .tauxCouverture(m.getTauxCouverture())
                 .conditions(m.getConditions())
                 .actif(m.getActif())
-                .statut(Boolean.TRUE.equals(m.getActif()) ? "ACTIF" : "INACTIF")
+                .statut(m.getStatut())
                 .source("DATABASE")
                 .createdAt(m.getCreatedAt())
                 .updatedAt(m.getUpdatedAt())
                 .build();
+    }
+
+    private boolean isOfficialMedicament(Medicament medicament) {
+        return medicament.getStatut() != null
+                && medicament.getTypeMedicament() != null
+                && medicament.getBaseRemboursement() != null;
     }
 
     private StructureSanteDTO toStructureDTO(StructureSante s, Double distanceKm) {
@@ -577,6 +615,13 @@ public class AssureDashboardController {
         return switch (sortBy == null ? "" : sortBy) {
             case "code", "categorie", "dci", "createdAt", "updatedAt" -> sortBy;
             default -> "nom";
+        };
+    }
+
+    private String mapHospitalisationSort(String sortBy) {
+        return switch (sortBy == null ? "" : sortBy) {
+            case "categorie", "chambre", "population", "dateDebut", "tauxRemboursement", "createdAt", "updatedAt" -> sortBy;
+            default -> "typePrestataire";
         };
     }
 

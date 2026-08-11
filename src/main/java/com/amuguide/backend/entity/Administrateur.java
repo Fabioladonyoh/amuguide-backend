@@ -1,6 +1,7 @@
 package com.amuguide.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,6 +34,7 @@ public class Administrateur {
     private String login;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String motDePasse;
 
     @Column(nullable = false)

@@ -16,7 +16,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/demandes")
 @RequiredArgsConstructor
-@CrossOrigin("*")
 public class DemandeController {
 
     private final DemandeService demandeService;

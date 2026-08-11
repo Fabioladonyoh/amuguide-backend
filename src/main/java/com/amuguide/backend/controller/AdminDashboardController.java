@@ -15,6 +15,7 @@ import com.amuguide.backend.exception.ResourceNotFoundException;
 import com.amuguide.backend.repository.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -54,8 +55,13 @@ public class AdminDashboardController {
                 .prestationsActives(prestationRepository.countByPrisEnChargeTrue())
                 .totalMedicaments(medicamentRepository.count())
                 .medicamentsPrisEnCharge(medicamentRepository.countByPrisEnChargeTrue())
-                .totalStructures(structureRepository.count())
-                .structuresActives(structureRepository.countActiveStructures())
+                .totalStructures(structureRepository.countHealthStructures())
+                .structuresActives(structureRepository.countActiveHealthStructures())
+                .totalStructuresSante(structureRepository.countHealthStructures())
+                .structuresSanteActives(structureRepository.countActiveHealthStructures())
+                .totalPharmacies(structureRepository.countOfficialPharmacies())
+                .pharmaciesActives(structureRepository.countOfficialPharmacies())
+                .pharmaciesAgreees(structureRepository.countOfficialPharmacies())
                 .totalFaq(faqRepository.count())
                 .faqActives(faqRepository.countByActifTrue())
                 .totalQuestionsChatbot(faqRepository.count())
@@ -144,6 +150,7 @@ public class AdminDashboardController {
     }
 
     @DeleteMapping("/prestations/{id}")
+    @Transactional
     public ResponseEntity<Void> deletePrestation(@PathVariable Long id) {
         Prestation prestation = findPrestation(id);
         if (prestation.getStructures() != null && !prestation.getStructures().isEmpty()) {
@@ -166,6 +173,9 @@ public class AdminDashboardController {
             @RequestParam(required = false) Boolean agrement,
             @RequestParam(defaultValue = "idStructure") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection) {
+        if (type == TypeStructure.PHARMACIE) {
+            throw new BadRequestException("Les pharmacies doivent etre consultees via /api/admin/pharmacies");
+        }
         Page<StructureSanteDTO> result = structureRepository
                 .searchStructures(search, ville, type, status, agrement, PageRequest.of(page, size, sort(sortBy, sortDirection)))
                 .map(this::toStructureDTO);
@@ -180,6 +190,7 @@ public class AdminDashboardController {
     @PostMapping("/structures")
     @ResponseStatus(HttpStatus.CREATED)
     public StructureSanteDTO createStructure(@Valid @RequestBody StructureSanteDTO dto) {
+        rejectPharmacyStructure(dto.getType());
         structureRepository.findByNomAndVille(dto.getNom(), dto.getVille()).ifPresent(existing -> {
             throw new BadRequestException("Une structure avec ce nom existe deja dans cette ville");
         });
@@ -188,6 +199,7 @@ public class AdminDashboardController {
 
     @PutMapping("/structures/{id}")
     public StructureSanteDTO updateStructure(@PathVariable Long id, @Valid @RequestBody StructureSanteDTO dto) {
+        rejectPharmacyStructure(dto.getType());
         structureRepository.findByNomAndVille(dto.getNom(), dto.getVille())
                 .filter(existing -> !existing.getIdStructure().equals(id))
                 .ifPresent(existing -> {
@@ -204,6 +216,7 @@ public class AdminDashboardController {
     }
 
     @DeleteMapping("/structures/{id}")
+    @Transactional
     public ResponseEntity<Void> deleteStructure(@PathVariable Long id) {
         StructureSante structure = findStructure(id);
         if (structure.getPrestations() != null && !structure.getPrestations().isEmpty()) {
@@ -468,11 +481,17 @@ public class AdminDashboardController {
                 .dosage(m.getDosage())
                 .formePharmaceutique(m.getFormePharmaceutique())
                 .categorie(m.getCategorie())
+                .typeMedicament(m.getTypeMedicament())
+                .groupeTherapeutique(m.getGroupeTherapeutique())
+                .prixPublic(m.getPrixPublic())
+                .baseRemboursement(m.getBaseRemboursement())
+                .partInam(m.getPartInam())
+                .partBeneficiaire(m.getPartBeneficiaire())
                 .prisEnCharge(m.getPrisEnCharge())
                 .tauxCouverture(m.getTauxCouverture())
                 .conditions(m.getConditions())
                 .actif(m.getActif())
-                .statut(Boolean.TRUE.equals(m.getActif()) ? "ACTIF" : "INACTIF")
+                .statut(m.getStatut())
                 .source("POSTGRESQL")
                 .createdAt(m.getCreatedAt())
                 .updatedAt(m.getUpdatedAt())
@@ -486,10 +505,17 @@ public class AdminDashboardController {
         m.setDosage(dto.getDosage());
         m.setFormePharmaceutique(dto.getFormePharmaceutique());
         m.setCategorie(dto.getCategorie());
+        m.setTypeMedicament(dto.getTypeMedicament());
+        m.setGroupeTherapeutique(dto.getGroupeTherapeutique());
+        m.setPrixPublic(dto.getPrixPublic());
+        m.setBaseRemboursement(dto.getBaseRemboursement());
+        m.setPartInam(dto.getPartInam());
+        m.setPartBeneficiaire(dto.getPartBeneficiaire());
         m.setPrisEnCharge(dto.getPrisEnCharge() != null ? dto.getPrisEnCharge() : true);
         m.setTauxCouverture(dto.getTauxCouverture());
         m.setConditions(dto.getConditions());
         m.setActif(dto.getActif() != null ? dto.getActif() : true);
+        m.setStatut(dto.getStatut());
         return m;
     }
 
@@ -529,9 +555,22 @@ public class AdminDashboardController {
 
     private TypeStructure parseType(String value) {
         try {
-            return TypeStructure.valueOf(value);
+            TypeStructure type = TypeStructure.valueOf(value);
+            if (type == TypeStructure.PHARMACIE) {
+                throw new BadRequestException("Les pharmacies doivent etre gerees via /api/admin/pharmacies");
+            }
+            return type;
         } catch (RuntimeException ex) {
+            if (ex instanceof BadRequestException) {
+                throw ex;
+            }
             throw new BadRequestException("Type de structure invalide : " + value);
+        }
+    }
+
+    private void rejectPharmacyStructure(String type) {
+        if ("PHARMACIE".equalsIgnoreCase(type)) {
+            throw new BadRequestException("Les pharmacies doivent etre gerees via /api/admin/pharmacies");
         }
     }
 

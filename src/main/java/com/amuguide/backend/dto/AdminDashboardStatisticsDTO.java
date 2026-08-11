@@ -17,6 +17,11 @@ public class AdminDashboardStatisticsDTO {
     private long medicamentsPrisEnCharge;
     private long totalStructures;
     private long structuresActives;
+    private long totalStructuresSante;
+    private long structuresSanteActives;
+    private long totalPharmacies;
+    private long pharmaciesActives;
+    private long pharmaciesAgreees;
     private long totalFaq;
     private long faqActives;
     private long totalQuestionsChatbot;

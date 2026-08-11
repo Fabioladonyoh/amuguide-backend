@@ -12,7 +12,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/verifications")
 @RequiredArgsConstructor
-@CrossOrigin("*")
 public class VerificationController {
 
     private final VerificationService verificationService;

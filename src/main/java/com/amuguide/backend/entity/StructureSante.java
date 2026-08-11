@@ -24,6 +24,9 @@ public class StructureSante {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idStructure;
 
+    @Column(name = "code")
+    private String code;
+
     @Column(nullable = false)
     private String nom;
 
@@ -31,23 +34,22 @@ public class StructureSante {
     @Column(nullable = false)
     private TypeStructure type;
 
-    @Column(nullable = false)
+    @Column(name = "type_officiel")
+    private String typeOfficiel;
+
     private String adresse;
 
-    @Column(nullable = false)
     private String ville;
 
     private String region;
 
-    @Column(nullable = false, length = 20)
+    @Column(length = 20)
     private String telephone;
 
     private String email;
 
-    @Column(nullable = false)
     private Double latitude;
 
-    @Column(nullable = false)
     private Double longitude;
 
     @Column(nullable = false)

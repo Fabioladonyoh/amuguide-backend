@@ -28,6 +28,9 @@ class AgentContextServiceTest {
     @Mock
     private MedicationKnowledgeService medicationKnowledgeService;
 
+    @Mock
+    private MedicamentChatbotSearchService medicamentChatbotSearchService;
+
     @InjectMocks
     private AgentContextService service;
 
@@ -37,7 +40,9 @@ class AgentContextServiceTest {
                 .intent(ChatIntent.MEDICATION_SEARCH)
                 .normalizedMessage("donne moi la liste des medicaments")
                 .build();
-        when(medicationKnowledgeService.search(detection.getNormalizedMessage(), 5)).thenReturn(List.of());
+        when(medicamentChatbotSearchService.search(detection.getNormalizedMessage(), 5))
+                .thenReturn(new MedicamentChatbotSearchService.MedicationSearchResult(
+                        "liste", List.of(), List.of(), false, false));
 
         AgentContext context = service.build(detection);
 

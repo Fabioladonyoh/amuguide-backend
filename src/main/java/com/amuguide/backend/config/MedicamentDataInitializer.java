@@ -5,6 +5,7 @@ import com.amuguide.backend.entity.Medicament;
 import com.amuguide.backend.repository.MedicamentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,7 @@ import java.util.stream.IntStream;
 
 @Component
 @Order(30)
+@ConditionalOnProperty(name = "amuguide.seed.legacy-medicaments.enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class MedicamentDataInitializer implements CommandLineRunner {
 

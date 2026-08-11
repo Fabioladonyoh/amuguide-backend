@@ -12,6 +12,10 @@ class IntentDetectorTest {
     void detectsCoverageQuestions() {
         assertThat(detector.detect("Quelles prestations sont couvertes ?").getIntent())
                 .isEqualTo(ChatIntent.COVERAGE);
+        assertThat(detector.detect("Que couvre l'AMU ?").getIntent())
+                .isEqualTo(ChatIntent.COVERAGE);
+        assertThat(detector.detect("Qu'est-ce que l'AMU prend en charge ?").getIntent())
+                .isEqualTo(ChatIntent.COVERAGE);
         assertThat(detector.detect("Est-ce que la consultation est prise en charge ?").getIntent())
                 .isEqualTo(ChatIntent.COVERAGE);
         assertThat(detector.detect("Les medicaments sont-ils rembourses ?").getIntent())

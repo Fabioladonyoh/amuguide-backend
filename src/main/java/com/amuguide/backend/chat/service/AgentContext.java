@@ -8,7 +8,7 @@ import java.util.List;
 public record AgentContext(
         List<Prestation> prestations,
         List<StructureSante> structures,
-        List<String> medications,
+        List<MedicationEvidence> medications,
         boolean amuInfoRelevant
 ) {
     public boolean hasEvidence() {

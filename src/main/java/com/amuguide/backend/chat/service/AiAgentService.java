@@ -62,10 +62,18 @@ public class AiAgentService {
             if (!builder.isEmpty()) {
                 builder.append("\n\n");
             }
-            builder.append("Dans le referentiel des medicaments et dispositifs medicaux School AMU valide au 01/01/2025, j'ai trouve :");
+            builder.append("Dans les donnees officielles AMU disponibles en base PostgreSQL, j'ai trouve :");
             context.medications().stream()
                     .limit(5)
-                    .forEach(medication -> builder.append("\n- ").append(medication));
+                    .forEach(medication -> builder.append("\n- ")
+                            .append(medication.nom())
+                            .append(" | code: ").append(medication.code())
+                            .append(" | DCI: ").append(medication.dci())
+                            .append(" | dosage: ").append(medication.dosage())
+                            .append(" | taux: ").append(medication.tauxCouverture())
+                            .append(" | part INAM: ").append(medication.partInam())
+                            .append(" | part beneficiaire: ").append(medication.partBeneficiaire())
+                            .append(" | statut: ").append(medication.statut()));
         }
 
         if (!context.structures().isEmpty()) {

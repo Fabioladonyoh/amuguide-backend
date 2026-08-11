@@ -28,6 +28,7 @@ public class AgentContextService {
     private final PrestationRepository prestationRepository;
     private final StructureSanteRepository structureSanteRepository;
     private final MedicationKnowledgeService medicationKnowledgeService;
+    private final MedicamentChatbotSearchService medicamentChatbotSearchService;
 
     public AgentContext build(IntentDetectionResult detection) {
         ChatIntent intent = detection.getIntent();
@@ -71,7 +72,9 @@ public class AgentContextService {
                 .map(ScoredStructure::structure)
                 .toList() : List.of();
 
-        List<String> medications = includeMedications ? medicationKnowledgeService.search(message, 5) : List.of();
+        List<MedicationEvidence> medications = includeMedications
+                ? medicamentChatbotSearchService.search(message, 5).matches()
+                : List.of();
         boolean amuInfoRelevant = normalized.contains("amu")
                 || normalized.contains("assurance maladie")
                 || normalized.contains("prise en charge")
@@ -114,8 +117,24 @@ public class AgentContextService {
         }
 
         if (!context.medications().isEmpty()) {
-            builder.append("Medicaments/dispositifs trouves dans le referentiel School AMU valide au 01/01/2025:\n");
-            context.medications().forEach(medication -> builder.append("- ").append(medication).append("\n"));
+            builder.append("DONNEES OFFICIELLES AMU - MEDICAMENT\n");
+            for (MedicationEvidence medication : context.medications()) {
+                builder.append("- code: ").append(nullToEmpty(medication.code()))
+                        .append(" | nom: ").append(nullToEmpty(medication.nom()))
+                        .append(" | dci: ").append(nullToEmpty(medication.dci()))
+                        .append(" | dosage: ").append(nullToEmpty(medication.dosage()))
+                        .append(" | forme pharmaceutique: ").append(nullToEmpty(medication.formePharmaceutique()))
+                        .append(" | statut: ").append(nullToEmpty(medication.statut()))
+                        .append(" | type medicament: ").append(nullToEmpty(medication.typeMedicament()))
+                        .append(" | groupe therapeutique: ").append(nullToEmpty(medication.groupeTherapeutique()))
+                        .append(" | prix public: ").append(medication.prixPublic())
+                        .append(" | base remboursement: ").append(medication.baseRemboursement())
+                        .append(" | taux couverture: ").append(medication.tauxCouverture())
+                        .append(" | part INAM: ").append(medication.partInam())
+                        .append(" | part beneficiaire: ").append(medication.partBeneficiaire())
+                        .append(" | pris en charge: ").append(medication.prisEnCharge())
+                        .append("\n");
+            }
         }
 
         return builder.toString().trim();

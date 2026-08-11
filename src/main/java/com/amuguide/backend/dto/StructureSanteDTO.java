@@ -27,9 +27,7 @@ public class StructureSanteDTO {
     @NotBlank
     private String telephone;
     private String email;
-    @NotNull
     private Double latitude;
-    @NotNull
     private Double longitude;
     @NotNull
     private Boolean agrementAMU;

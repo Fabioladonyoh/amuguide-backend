@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -24,6 +25,12 @@ public class MedicationDTO {
     private String dosage;
     private String formePharmaceutique;
     private String categorie;
+    private String typeMedicament;
+    private String groupeTherapeutique;
+    private BigDecimal prixPublic;
+    private BigDecimal baseRemboursement;
+    private BigDecimal partInam;
+    private BigDecimal partBeneficiaire;
     private Boolean prisEnCharge;
     @Min(value = 0, message = "Le taux de couverture doit etre au moins egal a 0")
     @Max(value = 100, message = "Le taux de couverture doit etre au plus egal a 100")

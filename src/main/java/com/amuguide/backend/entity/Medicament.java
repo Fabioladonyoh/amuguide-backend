@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -42,6 +43,27 @@ public class Medicament {
     private String formePharmaceutique;
 
     private String categorie;
+
+    @Column(name = "statut")
+    private String statut;
+
+    @Column(name = "type_medicament")
+    private String typeMedicament;
+
+    @Column(name = "groupe_therapeutique")
+    private String groupeTherapeutique;
+
+    @Column(name = "prix_public")
+    private BigDecimal prixPublic;
+
+    @Column(name = "base_remboursement")
+    private BigDecimal baseRemboursement;
+
+    @Column(name = "part_inam")
+    private BigDecimal partInam;
+
+    @Column(name = "part_beneficiaire")
+    private BigDecimal partBeneficiaire;
 
     private Boolean prisEnCharge;
 

@@ -11,6 +11,7 @@ import java.util.List;
 public class PageResponseDTO<T> {
     private List<T> content;
     private int page;
+    private int number;
     private int size;
     private long totalElements;
     private int totalPages;
@@ -21,6 +22,7 @@ public class PageResponseDTO<T> {
         return PageResponseDTO.<T>builder()
                 .content(page.getContent())
                 .page(page.getNumber())
+                .number(page.getNumber())
                 .size(page.getSize())
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
